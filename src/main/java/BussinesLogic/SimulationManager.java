@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.io.FileWriter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SimulationManager implements Runnable {
     private int timeLimit = 60;
@@ -28,9 +29,6 @@ public class SimulationManager implements Runnable {
     private OutputFrame frame;
 
     public SimulationManager() {
-        //scheduler = new Scheduler(2, 4,SelectionPolicy.SHORTEST_TIME);
-        //Strategy strategy = new TimeStrategy();
-
         generatedTasks = generateNRandomTasks();
         for( Task task : generatedTasks ) {
             System.out.println(task.getId() + " " + task.getArrivalTime() + " " + task.getServiceTime());
@@ -73,6 +71,10 @@ public class SimulationManager implements Runnable {
 
     @Override
     public void run() {
+        AtomicInteger averageWaiting=new AtomicInteger(0);
+        AtomicInteger averageProcess=new AtomicInteger(0);
+        AtomicInteger peekHour=new AtomicInteger(0);
+        AtomicInteger biggestSize=new AtomicInteger(0);
         this.stringBuilder=new StringBuilder();
         int currentTime = 0;
         try {
@@ -82,7 +84,8 @@ public class SimulationManager implements Runnable {
                 this.stringBuilder.append("STEP:").append(currentTime).append("\n");
                 for( Task task : generatedTasks )
                     if (task.getArrivalTime() == currentTime) {
-                        scheduler.dispatchTask(task);
+                        averageProcess.addAndGet(task.getServiceTime());
+                        averageWaiting.addAndGet(scheduler.dispatchTask(task));
                         generatedTasks.remove(task);
                     }
                 this.stringBuilder.append("Waiting:");
@@ -93,22 +96,30 @@ public class SimulationManager implements Runnable {
                 this.stringBuilder.append("\n");
                 currentTime++;
                 int i = 1;
+                AtomicInteger currentSize = new AtomicInteger(0);
                 for( Server server : scheduler.getServers() ) {
+                    currentSize.addAndGet(server.getTasks().size());
+                    if(currentSize.get()>biggestSize.get()){
+                        biggestSize.set(currentSize.get());
+                        peekHour.set(currentTime-1);
+                    }
                     stringBuilder.append("Queue ").append(i++).append(":");
                     if (server.getTasks().isEmpty()){
                         stringBuilder.append("closed\n");
                         }
                     else {
                         for( Task task : server.getTasks() ) {
-                            //System.out.print("{" + task.getId() + "," + task.getArrivalTime() + "," + task.getServiceTime() + "}");
                             stringBuilder.append("{").append(task.getId()).append(",").append(task.getArrivalTime()).append(",").append(task.getServiceTime()).append("}");
                         }
-                        //System.out.println();
                         stringBuilder.append("\n");
                     }
                 }
                 System.out.println(stringBuilder);
+                System.out.println(averageWaiting);
+                System.out.println(averageProcess);
                 myWriter.write(stringBuilder.toString());
+                //myWriter.write(averageWaiting.toString());
+                //myWriter.write("\n");
                 frame.getOutputTextArea().setText(stringBuilder.toString());
 
                 for( Server server : scheduler.getServers() ) {
@@ -118,8 +129,18 @@ public class SimulationManager implements Runnable {
                         server.getWaitingPeriod().decrementAndGet();
                 }
                 Thread.sleep(1000);
-
             }
+            System.out.println("peel:" +peekHour.get());
+            System.out.println(averageProcess.get()/numberOfClients);
+            System.out.println(averageWaiting.get()/numberOfClients);
+            Double x=1.0*averageWaiting.get()/numberOfClients;
+            myWriter.write("Average Waiting: " + x.toString());
+            myWriter.write("\n");
+            x=1.0*averageProcess.get()/numberOfClients;
+            myWriter.write("Average Proccesing: " +x.toString());
+            myWriter.write("\n");
+            myWriter.write("Peek Hour: " +peekHour.toString());
+            myWriter.write("\n");
             myWriter.close();
         } catch (Exception e) {
             e.printStackTrace();

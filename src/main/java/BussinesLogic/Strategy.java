@@ -7,5 +7,5 @@ import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface Strategy {
-     void addTask( CopyOnWriteArrayList<Server> servers, Task task);
+     int addTask( CopyOnWriteArrayList<Server> servers, Task task);
 }

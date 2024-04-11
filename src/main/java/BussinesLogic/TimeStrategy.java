@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class TimeStrategy implements Strategy {
 
     @Override
-    public void addTask( CopyOnWriteArrayList<Server> servers, Task task ) {
+    public int addTask( CopyOnWriteArrayList<Server> servers, Task task ) {
         Server minTimeServer=new Server();
         int minWaitingTime=10000;
         for(Server server:servers){
@@ -19,6 +19,8 @@ public class TimeStrategy implements Strategy {
                 minWaitingTime=server.getWaitingPeriod().get();
             }
         }
+        int waitingPer=minTimeServer.getWaitingPeriod().get();
         minTimeServer.addTask(task);
+        return waitingPer;
     }
 }

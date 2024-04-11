@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ShortestQueueStrategy implements Strategy{
     @Override
-    public void addTask( CopyOnWriteArrayList<Server> servers, Task task ) {
+    public int addTask( CopyOnWriteArrayList<Server> servers, Task task ) {
         Server shortQueueServer=new Server();
         int shortestSize=10000;
         for(Server server:servers){
@@ -17,6 +17,8 @@ public class ShortestQueueStrategy implements Strategy{
                 shortestSize=server.getTasks().size();
             }
         }
+        int waitingPer=shortQueueServer.getWaitingPeriod().get();
         shortQueueServer.addTask(task);
+        return waitingPer;
     }
 }

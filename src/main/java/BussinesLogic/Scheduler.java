@@ -34,8 +34,8 @@ public class Scheduler {
         if(policy == SelectionPolicy.SHORTEST_QUEUE)
             strategy = new ShortestQueueStrategy();
     }
-    public void dispatchTask( Task task){
-        strategy.addTask(servers,task);
+    public int dispatchTask( Task task){
+        return strategy.addTask(servers,task);
     }
 
     public CopyOnWriteArrayList<Server> getServers() {
