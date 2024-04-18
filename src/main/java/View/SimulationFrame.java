@@ -58,7 +58,7 @@ public class SimulationFrame extends JFrame {
     private void prepareDataPanel() {
         this.dataPane=new JPanel();
         this.dataPane.setLayout(new GridLayout(6,2));
-        this.nrOfClientsLabel=new JLabel("<html>Nr. Of<br> Clients:</html>", JLabel.CENTER);
+        this.nrOfClientsLabel=new JLabel("Nr. Of Clients:", JLabel.CENTER);
         this.dataPane.add(this.nrOfClientsLabel);
         this.nrOfClientsTextField=new TextField();
         this.dataPane.add(this.nrOfClientsTextField);

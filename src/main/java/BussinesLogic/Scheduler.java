@@ -13,13 +13,10 @@ public class Scheduler {
     private int maxTasksPerServer;
     private Strategy strategy;
 
-    public Scheduler(int maxNoServers, int maxTasksPerServer, SelectionPolicy selectionPolicy){
+    public Scheduler(int maxNoServers, int maxTasksPerServer){
         this.servers=new CopyOnWriteArrayList<>();
         this.maxNoServers=maxNoServers;
         this.maxTasksPerServer=maxTasksPerServer;
-        if(selectionPolicy==SelectionPolicy.SHORTEST_TIME)
-            this.strategy=new TimeStrategy();
-        else this.strategy=new ShortestQueueStrategy();
         for(int i=0;i<maxNoServers;i++){
             Server server = new Server(maxTasksPerServer);
             Thread t = new Thread(server);

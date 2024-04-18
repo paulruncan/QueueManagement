@@ -3,7 +3,6 @@ package Model;
 public class Task {
     private int arrivalTime;
     private int serviceTime;
-
     private int id;
 
     public Task(int arrivalTime, int serviceTime, int id) {
